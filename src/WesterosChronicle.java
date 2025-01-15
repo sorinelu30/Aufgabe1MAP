@@ -1,8 +1,12 @@
-import java.io.*;
-import java.nio.file.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class WesterosChronicle {
+
+    // Clasa pentru reprezentarea unui eveniment
     static class Event {
         int id;
         String memberName;
@@ -27,20 +31,29 @@ public class WesterosChronicle {
     public static void main(String[] args) {
         String inputFile = "evenimente.tsv";
 
-        // Citirea evenimentelor din fișier
+        // Citirea fisierului TSV
         List<Event> events = readTSV(inputFile);
         if (events == null || events.isEmpty()) {
-            System.out.println("Fișierul nu a putut fi citit sau este gol.");
+            System.out.println("Fisierul nu a putut fi citit sau este gol.");
             return;
         }
 
-        // Afișăm evenimentele citite
-        System.out.println("Evenimente citite din fișier:");
+        // Afisarea evenimentelor citite
+        System.out.println("Evenimente citite din fisier:");
         events.forEach(System.out::println);
+
+        // Afisarea membrilor dupa litera
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Introduceti o litera mare pentru filtrare: ");
+        char filterLetter = scanner.nextLine().charAt(0);
+
+        List<String> filteredMembers = filterMembersByLetter(events, filterLetter);
+        System.out.println("\nMembri al caror nume incepe cu '" + filterLetter + "':");
+        filteredMembers.forEach(System.out::println);
     }
 
-    // Citirea pentru TSV
-    private static List<Event> readTSV(String fileName) {
+    // Metoda pentru citirea fisierului TSV
+    public static List<Event> readTSV(String fileName) {
         List<Event> events = new ArrayList<>();
         try {
             List<String> lines = Files.readAllLines(Paths.get(fileName));
@@ -59,5 +72,14 @@ public class WesterosChronicle {
             e.printStackTrace();
         }
         return events;
+    }
+
+    // Metoda pentru filtrarea membrilor dupa litera
+    public static List<String> filterMembersByLetter(List<Event> events, char letter) {
+        return events.stream()
+                .map(event -> event.memberName)
+                .filter(name -> name.charAt(0) == letter)
+                .distinct()
+                .collect(Collectors.toList());
     }
 }
